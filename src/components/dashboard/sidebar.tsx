@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { LayoutDashboard, Users, Settings, Database } from "lucide-react"
+import { LayoutDashboard, Users, Settings, Database, TrendingUp } from "lucide-react"
 
 const routes = [
   {
@@ -23,6 +23,12 @@ const routes = [
     icon: Database,
     href: "/dashboard/data",
     color: "text-pink-700",
+  },
+  {
+    label: "Leads Analytics",
+    icon: TrendingUp,
+    href: "/dashboard/leads",
+    color: "text-emerald-500",
   },
   {
     label: "Settings",
