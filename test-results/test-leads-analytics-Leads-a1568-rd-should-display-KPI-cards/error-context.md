@@ -1,0 +1,152 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - link "Dashboard" [ref=e6] [cursor=pointer]:
+        - /url: /dashboard
+        - heading "Dashboard" [level=1] [ref=e7]
+      - generic [ref=e8]:
+        - link "Dashboard" [ref=e9] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e10]:
+            - img [ref=e11]
+            - text: Dashboard
+        - link "Users" [ref=e16] [cursor=pointer]:
+          - /url: /dashboard/users
+          - generic [ref=e17]:
+            - img [ref=e18]
+            - text: Users
+        - link "Data" [ref=e23] [cursor=pointer]:
+          - /url: /dashboard/data
+          - generic [ref=e24]:
+            - img [ref=e25]
+            - text: Data
+        - link "Leads Analytics" [ref=e29] [cursor=pointer]:
+          - /url: /dashboard/leads
+          - generic [ref=e30]:
+            - img [ref=e31]
+            - text: Leads Analytics
+        - link "Settings" [ref=e34] [cursor=pointer]:
+          - /url: /dashboard/settings
+          - generic [ref=e35]:
+            - img [ref=e36]
+            - text: Settings
+    - main [ref=e39]:
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - heading "Leads Analytics" [level=2] [ref=e43]
+          - paragraph [ref=e44]: "Analyse complète des leads Facebook (Table: NEW-FACEBOOK)"
+        - generic [ref=e45]:
+          - generic [ref=e47]:
+            - generic [ref=e48]:
+              - generic [ref=e49]:
+                - img [ref=e50]
+                - text: Filtres
+              - generic [ref=e52]: Affinez votre analyse des leads
+            - generic [ref=e53]:
+              - generic [ref=e54]:
+                - text: Compte Facebook
+                - combobox [ref=e55] [cursor=pointer]:
+                  - generic: Tous les comptes
+                  - img [ref=e56]
+              - generic [ref=e58]:
+                - text: Activité
+                - combobox [ref=e59] [cursor=pointer]:
+                  - generic: Toutes les activités
+                  - img [ref=e60]
+              - generic [ref=e62]:
+                - text: Période
+                - generic [ref=e63]:
+                  - textbox [ref=e64]:
+                    - /placeholder: Date de début
+                  - textbox [ref=e65]:
+                    - /placeholder: Date de fin
+              - generic [ref=e66]:
+                - text: Recherche
+                - textbox "Nom ou email..." [ref=e67]
+              - generic [ref=e68]:
+                - button "Appliquer" [ref=e69] [cursor=pointer]:
+                  - img
+                  - text: Appliquer
+                - button [ref=e70] [cursor=pointer]:
+                  - img
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - generic [ref=e73]:
+                - generic [ref=e74]:
+                  - generic [ref=e75]: Total Leads
+                  - img [ref=e76]
+                - generic [ref=e81]:
+                  - generic [ref=e82]: "0"
+                  - paragraph [ref=e83]: Leads collectés
+              - generic [ref=e84]:
+                - generic [ref=e85]:
+                  - generic [ref=e86]: Compte Principal
+                  - img [ref=e87]
+                - generic [ref=e91]:
+                  - generic [ref=e92]: N/A
+                  - paragraph [ref=e93]: 0.0% des leads
+              - generic [ref=e94]:
+                - generic [ref=e95]:
+                  - generic [ref=e96]: Activité Principale
+                  - img [ref=e97]
+                - generic [ref=e99]:
+                  - generic [ref=e100]: N/A
+                  - paragraph [ref=e101]: 0.0% des leads
+              - generic [ref=e102]:
+                - generic [ref=e103]:
+                  - generic [ref=e104]: Comptes Actifs
+                  - img [ref=e105]
+                - generic [ref=e108]:
+                  - generic [ref=e109]: "0"
+                  - paragraph [ref=e110]: Comptes générant des leads
+            - generic [ref=e111]:
+              - tablist [ref=e112]:
+                - tab "Vue d'ensemble" [selected] [ref=e113] [cursor=pointer]
+                - tab "Évolution" [ref=e114] [cursor=pointer]
+                - tab "Par Compte" [ref=e115] [cursor=pointer]
+                - tab "Heatmap" [ref=e116] [cursor=pointer]
+              - tabpanel "Vue d'ensemble" [ref=e117]:
+                - generic [ref=e118]:
+                  - generic [ref=e119]:
+                    - generic [ref=e120]:
+                      - generic [ref=e121]: Leads par Compte
+                      - generic [ref=e122]: Distribution des leads par compte Facebook (PV/PAC/ITE)
+                    - generic [ref=e125]:
+                      - img [ref=e126]:
+                        - generic [ref=e131]:
+                          - generic [ref=e133]: "0"
+                          - generic [ref=e135]: "1"
+                          - generic [ref=e137]: "2"
+                          - generic [ref=e139]: "3"
+                          - generic [ref=e141]: "4"
+                      - list [ref=e143]:
+                        - listitem [ref=e144]:
+                          - img [ref=e145]
+                          - text: PV
+                        - listitem [ref=e147]:
+                          - img [ref=e148]
+                          - text: PAC
+                        - listitem [ref=e150]:
+                          - img [ref=e151]
+                          - text: ITE
+                  - generic [ref=e153]:
+                    - generic [ref=e154]:
+                      - generic [ref=e155]: Leads par Activité
+                      - generic [ref=e156]: Répartition des types d'activité
+                    - img [ref=e160]
+                - generic [ref=e161]:
+                  - generic [ref=e162]:
+                    - generic [ref=e163]: Évolution des Leads (30 derniers jours)
+                    - generic [ref=e164]: Tendance des leads collectés au fil du temps
+                  - generic [ref=e167]:
+                    - img [ref=e168]
+                    - list [ref=e173]:
+                      - listitem [ref=e174]:
+                        - img [ref=e175]
+                        - text: Total Leads
+  - alert [ref=e177]
+  - generic [ref=e178]: "0"
+```
