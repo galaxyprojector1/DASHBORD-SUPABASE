@@ -75,6 +75,8 @@ export default function LeadsAnalyticsPage() {
       setError(null)
 
       try {
+        console.log('[Leads] Starting data load with filters:', filters)
+
         // Parallel loading for performance
         const [statsData, timeSeriesTotal, timeSeriesSplit, heatmap] =
           await Promise.all([
@@ -84,13 +86,20 @@ export default function LeadsAnalyticsPage() {
             LeadsService.getHeatmapData(filters),
           ])
 
+        console.log('[Leads] Data loaded successfully:', {
+          total: statsData.total,
+          accounts: statsData.byAccount.length,
+          activities: statsData.byActivity.length,
+        })
+
         setStats(statsData)
         setTimeSeriesData(timeSeriesTotal)
         setTimeSeriesByAccount(timeSeriesSplit)
         setHeatmapData(heatmap)
       } catch (err: any) {
-        console.error("Error loading data:", err)
-        setError(err.message || "Une erreur est survenue")
+        console.error("[Leads] Error loading data:", err)
+        const errorMessage = err.message || "Une erreur est survenue lors du chargement des données"
+        setError(`Erreur: ${errorMessage}. Vérifiez la console pour plus de détails.`)
       } finally {
         setLoading(false)
       }
