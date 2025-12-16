@@ -5,7 +5,7 @@ Dashboard project with Supabase integration.
 ## Quick Info
 
 - **Repo**: https://github.com/galaxyprojector1/DASHBORD-SUPABASE
-- **Live**: https://dashbord-ten-pink.vercel.app/
+- **Live**: https://dashbord-supabase.vercel.app
 - **Stack**: Next.js + Supabase + Tailwind CSS
 - **Deployment**: Vercel (auto-deploy on push to main)
 
