@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Supabase Connection</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Test Connexion Supabase</h1>
+    <div id="results"></div>
+
+    <script>
+        const { createClient } = supabase;
+
+        // IMPORTANT: Remplacer avec vos vraies credentials
+        const SUPABASE_URL = 'https://mmdbevzsaqbkkdgcjaql.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1tZGJldnpzYXFia2tkZ2NqYXFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQzODc3MzEsImV4cCI6MjA2OTk2MzczMX0.YGUzhpcKixZWsRAswFQtCCnRdSOSlDOXb7UENNnem9M';
+
+        const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function testConnection() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>Testing...</p>';
+
+            try {
+                console.log('1. Testing connection...');
+                const { data, error, count } = await client
+                    .from('NEW-FACEBOOK')
+                    .select('*', { count: 'exact' })
+                    .limit(10);
+
+                if (error) {
+                    results.innerHTML = `
+                        <h2 style="color: red;">❌ Erreur</h2>
+                        <p><strong>Message:</strong> ${error.message}</p>
+                        <p><strong>Code:</strong> ${error.code}</p>
+                        <p><strong>Details:</strong> ${JSON.stringify(error.details)}</p>
+                        <p><strong>Hint:</strong> ${error.hint}</p>
+                    `;
+                    console.error('Error:', error);
+                    return;
+                }
+
+                console.log('Data:', data);
+                console.log('Count:', count);
+
+                results.innerHTML = `
+                    <h2 style="color: green;">✅ Succès!</h2>
+                    <p><strong>Total leads:</strong> ${count}</p>
+                    <p><strong>Premiers résultats:</strong></p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+
+            } catch (err) {
+                results.innerHTML = `
+                    <h2 style="color: red;">❌ Exception</h2>
+                    <p>${err.message}</p>
+                    <pre>${err.stack}</pre>
+                `;
+                console.error('Exception:', err);
+            }
+        }
+
+        testConnection();
+    </script>
+</body>
+</html>
