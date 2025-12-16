@@ -1,0 +1,79 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - alert [ref=e2]
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - link "Dashboard" [ref=e7] [cursor=pointer]:
+        - /url: /dashboard
+        - heading "Dashboard" [level=1] [ref=e8]
+      - generic [ref=e9]:
+        - link "Dashboard" [ref=e10] [cursor=pointer]:
+          - /url: /dashboard
+          - generic [ref=e11]:
+            - img [ref=e12]
+            - text: Dashboard
+        - link "Users" [ref=e17] [cursor=pointer]:
+          - /url: /dashboard/users
+          - generic [ref=e18]:
+            - img [ref=e19]
+            - text: Users
+        - link "Data" [ref=e24] [cursor=pointer]:
+          - /url: /dashboard/data
+          - generic [ref=e25]:
+            - img [ref=e26]
+            - text: Data
+        - link "Settings" [ref=e30] [cursor=pointer]:
+          - /url: /dashboard/settings
+          - generic [ref=e31]:
+            - img [ref=e32]
+            - text: Settings
+    - main [ref=e35]:
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - generic [ref=e39]:
+            - heading "Dashboard Overview" [level=2] [ref=e40]
+            - paragraph [ref=e41]: Welcome to your Supabase dashboard
+          - generic [ref=e42]: Connected to Supabase
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - generic [ref=e45]:
+              - generic [ref=e46]: Total Users
+              - img [ref=e47]
+            - generic [ref=e52]:
+              - generic [ref=e53]: 2,543
+              - paragraph [ref=e54]: +12% from last month
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - generic [ref=e57]: Database Records
+              - img [ref=e58]
+            - generic [ref=e62]:
+              - generic [ref=e63]: 12,234
+              - paragraph [ref=e64]: +8% from last month
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e67]: Active Sessions
+              - img [ref=e68]
+            - generic [ref=e70]:
+              - generic [ref=e71]: "573"
+              - paragraph [ref=e72]: Real-time data
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - generic [ref=e75]: Growth Rate
+              - img [ref=e76]
+            - generic [ref=e79]:
+              - generic [ref=e80]: +23%
+              - paragraph [ref=e81]: This quarter
+        - generic [ref=e82]:
+          - generic [ref=e83]:
+            - generic [ref=e84]: Quick Start
+            - generic [ref=e85]: Configure your environment variables to connect to your Supabase database
+          - generic [ref=e87]:
+            - paragraph [ref=e88]:
+              - text: 1. Create a
+              - code [ref=e89]: .env.local
+              - text: file
+            - paragraph [ref=e90]: 2. Add your Supabase URL and API key
+            - paragraph [ref=e91]: 3. Restart the development server
+```
