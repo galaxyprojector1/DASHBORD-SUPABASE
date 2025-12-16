@@ -27,12 +27,14 @@ export class LeadsService {
   ): Promise<FacebookLead[]> {
     let query = supabase.from(TABLE_NAME).select("*")
 
-    // Date filters
+    // Date filters (compare dates, not timestamps)
     if (filters.dateFrom) {
-      query = query.gte("date_collecte", filters.dateFrom)
+      // Start of day: dateFrom 00:00:00
+      query = query.gte("date_collecte", `${filters.dateFrom}T00:00:00`)
     }
     if (filters.dateTo) {
-      query = query.lte("date_collecte", filters.dateTo)
+      // End of day: dateTo 23:59:59
+      query = query.lte("date_collecte", `${filters.dateTo}T23:59:59`)
     }
 
     // Account filter
