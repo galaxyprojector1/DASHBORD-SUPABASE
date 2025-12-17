@@ -3,7 +3,7 @@
  * Handles data fetching, filtering, and client-side aggregations
  */
 
-import { supabase } from "./supabase"
+import { createClient } from "@/lib/supabase/client"
 import {
   FacebookLead,
   LeadStats,
@@ -24,6 +24,8 @@ export class LeadsService {
   static async fetchLeads(
     filters: LeadsFilters
   ): Promise<FacebookLead[]> {
+    const supabase = createClient()
+
     // HARDCODED: Only 3 active accounts + PV activity
     let query = supabase
       .from(TABLE_NAME)
