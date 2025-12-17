@@ -1,11 +1,10 @@
 /**
- * Leads by Account Chart - Stacked bar chart showing PV/PAC/ITE per account
- * Most important chart per user priority
+ * Leads by Account Chart - Simple bar chart showing PV leads per account
  */
 
 "use client"
 
-import { AccountStats, ACTIVITY_COLORS } from "@/types/leads"
+import { AccountStats } from "@/types/leads"
 import {
   BarChart,
   Bar,
@@ -13,7 +12,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from "recharts"
 
@@ -22,25 +20,29 @@ interface LeadsByAccountChartProps {
 }
 
 export function LeadsByAccountChart({ data }: LeadsByAccountChartProps) {
-  // Transform data for stacked bar chart
+  // Transform data for bar chart - PV only
   const chartData = data.map((account) => ({
     name: account.name,
-    PV: account.activities.PV,
-    PAC: account.activities.PAC,
-    ITE: account.activities.ITE,
-    total: account.count,
+    leads: account.pvCount,
   }))
 
   return (
     <ResponsiveContainer width="100%" height={350}>
       <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+        <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
         <XAxis
           dataKey="name"
           className="text-sm"
           tick={{ fill: "currentColor" }}
+          tickLine={false}
+          axisLine={false}
         />
-        <YAxis className="text-sm" tick={{ fill: "currentColor" }} />
+        <YAxis
+          className="text-sm"
+          tick={{ fill: "currentColor" }}
+          tickLine={false}
+          axisLine={false}
+        />
         <Tooltip
           contentStyle={{
             backgroundColor: "hsl(var(--popover))",
@@ -48,25 +50,12 @@ export function LeadsByAccountChart({ data }: LeadsByAccountChartProps) {
             borderRadius: "var(--radius)",
           }}
           labelStyle={{ color: "hsl(var(--popover-foreground))" }}
-        />
-        <Legend />
-        <Bar
-          dataKey="PV"
-          stackId="a"
-          fill={ACTIVITY_COLORS.PV}
-          radius={[0, 0, 0, 0]}
+          cursor={{ fill: "hsl(var(--muted))" }}
         />
         <Bar
-          dataKey="PAC"
-          stackId="a"
-          fill={ACTIVITY_COLORS.PAC}
-          radius={[0, 0, 0, 0]}
-        />
-        <Bar
-          dataKey="ITE"
-          stackId="a"
-          fill={ACTIVITY_COLORS.ITE}
-          radius={[4, 4, 0, 0]}
+          dataKey="leads"
+          fill="hsl(var(--primary))"
+          radius={[8, 8, 0, 0]}
         />
       </BarChart>
     </ResponsiveContainer>

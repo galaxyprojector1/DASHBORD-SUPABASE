@@ -8,11 +8,10 @@ import {
   FacebookLead,
   LeadStats,
   AccountStats,
-  ActivityStats,
   DateStats,
   HeatmapData,
   LeadsFilters,
-  ACTIVITY_COLORS,
+  AccountComparisonData,
 } from "@/types/leads"
 import { format, parseISO } from "date-fns"
 
@@ -22,10 +21,15 @@ export class LeadsService {
   /**
    * Fetch raw leads with applied filters
    */
-  private static async fetchLeads(
+  static async fetchLeads(
     filters: LeadsFilters
   ): Promise<FacebookLead[]> {
-    let query = supabase.from(TABLE_NAME).select("*")
+    // HARDCODED: Only 3 active accounts + PV activity
+    let query = supabase
+      .from(TABLE_NAME)
+      .select("*")
+      .in("compte", ["INVF", "INVC3", "INVC4"])
+      .eq("activité", "PV")
 
     // Date filters (compare dates, not timestamps)
     if (filters.dateFrom) {
@@ -37,14 +41,9 @@ export class LeadsService {
       query = query.lte("date_collecte", `${filters.dateTo}T23:59:59`)
     }
 
-    // Account filter
-    if (filters.compte && filters.compte !== "Tous") {
-      query = query.eq("compte", filters.compte)
-    }
-
-    // Activity filter
-    if (filters.activité && filters.activité !== "Toutes") {
-      query = query.eq("activité", filters.activité)
+    // Account filter (if specific among the 3)
+    if (filters.comptes.length > 0 && filters.comptes.length < 3) {
+      query = query.in("compte", filters.comptes)
     }
 
     // Search filter (name or email)
@@ -72,28 +71,20 @@ export class LeadsService {
     const total = leads.length
 
     // Group by account
-    const accountMap = new Map<
-      string,
-      { count: number; activities: { PV: number; PAC: number; ITE: number } }
-    >()
+    const accountMap = new Map<string, { count: number; pvCount: number }>()
     leads.forEach((lead) => {
       const account = lead.compte
-      const activity = lead.activité
 
       if (!accountMap.has(account)) {
         accountMap.set(account, {
           count: 0,
-          activities: { PV: 0, PAC: 0, ITE: 0 },
+          pvCount: 0,
         })
       }
 
       const accountData = accountMap.get(account)!
       accountData.count++
-
-      // Count activities
-      if (activity === "PV") accountData.activities.PV++
-      else if (activity === "PAC") accountData.activities.PAC++
-      else if (activity === "ITE") accountData.activities.ITE++
+      accountData.pvCount++ // All leads are PV (hardcoded filter)
     })
 
     // Convert to AccountStats array
@@ -102,23 +93,7 @@ export class LeadsService {
         name,
         count: data.count,
         percentage: total > 0 ? (data.count / total) * 100 : 0,
-        activities: data.activities,
-      }))
-      .sort((a, b) => b.count - a.count)
-
-    // Group by activity
-    const activityMap = new Map<string, number>()
-    leads.forEach((lead) => {
-      const activity = lead.activité
-      activityMap.set(activity, (activityMap.get(activity) || 0) + 1)
-    })
-
-    const byActivity: ActivityStats[] = Array.from(activityMap.entries())
-      .map(([name, count]) => ({
-        name,
-        count,
-        percentage: total > 0 ? (count / total) * 100 : 0,
-        color: ACTIVITY_COLORS[name] || "#64748b",
+        pvCount: data.pvCount,
       }))
       .sort((a, b) => b.count - a.count)
 
@@ -137,25 +112,43 @@ export class LeadsService {
       .map(([date, count]) => ({ date, count }))
       .sort((a, b) => a.date.localeCompare(b.date))
 
-    // Top account and activity
+    // Top account
     const topAccount =
       byAccount.length > 0
-        ? { name: byAccount[0].name, percentage: byAccount[0].percentage }
-        : { name: "N/A", percentage: 0 }
+        ? {
+            name: byAccount[0].name,
+            count: byAccount[0].count,
+            percentage: byAccount[0].percentage,
+          }
+        : { name: "N/A", count: 0, percentage: 0 }
 
-    const topActivity =
-      byActivity.length > 0
-        ? { name: byActivity[0].name, percentage: byActivity[0].percentage }
-        : { name: "N/A", percentage: 0 }
+    // New KPIs
+    const totalDays = byDate.length
+    const dailyAverage = totalDays > 0 ? total / totalDays : 0
+
+    const bestDay =
+      byDate.length > 0
+        ? byDate.reduce((max, curr) => (curr.count > max.count ? curr : max))
+        : { date: "", count: 0 }
+
+    // Weekly trend (last 7 days vs previous 7 days)
+    const last7Days = byDate.slice(-7)
+    const prev7Days = byDate.slice(-14, -7)
+    const last7Total = last7Days.reduce((sum, d) => sum + d.count, 0)
+    const prev7Total = prev7Days.reduce((sum, d) => sum + d.count, 0)
+    const weeklyTrend =
+      prev7Total > 0 ? ((last7Total - prev7Total) / prev7Total) * 100 : 0
 
     return {
       total,
       byAccount,
-      byActivity,
       byDate,
       topAccount,
-      topActivity,
       activeAccounts: accountMap.size,
+      dailyAverage,
+      totalDays,
+      bestDay,
+      weeklyTrend,
     }
   }
 
@@ -258,50 +251,76 @@ export class LeadsService {
   }
 
   /**
-   * Get list of unique accounts for dropdown
+   * Get complete list of leads with filters applied
+   * Returns all lead data for detailed table display
    */
-  static async getAccounts(): Promise<string[]> {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .select("compte")
-      .order("compte")
-
-    if (error) {
-      console.error("Error fetching accounts:", error)
-      throw new Error(`Failed to fetch accounts: ${error.message}`)
-    }
-
-    if (!data) return []
-
-    // Get unique accounts
-    const accounts = Array.from(
-      new Set(data.map((item: any) => item.compte as string))
-    )
-
-    return accounts
+  static async getAllLeads(filters: LeadsFilters): Promise<FacebookLead[]> {
+    return this.fetchLeads(filters)
   }
 
   /**
-   * Get list of unique activities for dropdown
+   * Get list of unique accounts (hardcoded - 3 active accounts only)
    */
-  static async getActivities(): Promise<string[]> {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .select("activité")
-      .order("activité")
+  static async getAccounts(): Promise<string[]> {
+    return ["INVF", "INVC3", "INVC4"]
+  }
 
-    if (error) {
-      console.error("Error fetching activities:", error)
-      throw new Error(`Failed to fetch activities: ${error.message}`)
-    }
+  /**
+   * Compare multiple accounts with detailed metrics
+   */
+  static async compareAccounts(
+    accountNames: string[],
+    filters: LeadsFilters
+  ): Promise<AccountComparisonData[]> {
+    // Fetch leads for all accounts
+    const allLeads = await this.fetchLeads(filters)
 
-    if (!data) return []
+    // Build comparison data for each account
+    const comparisonResults = accountNames.map((accountName) => {
+      // Filter leads for this specific account
+      const accountLeads = allLeads.filter(
+        (lead) => lead.compte === accountName
+      )
 
-    // Get unique activities
-    const activities = Array.from(
-      new Set(data.map((item: any) => item.activité as string))
-    )
+      const totalPV = accountLeads.length
 
-    return activities
+      // Build date map for time series
+      const dateMap = new Map<string, number>()
+      accountLeads.forEach((lead) => {
+        try {
+          const date = format(parseISO(lead.date_collecte), "yyyy-MM-dd")
+          dateMap.set(date, (dateMap.get(date) || 0) + 1)
+        } catch (error) {
+          console.warn("Invalid date format:", lead.date_collecte)
+        }
+      })
+
+      // Convert to time series array
+      const timeSeriesData: DateStats[] = Array.from(dateMap.entries())
+        .map(([date, count]) => ({ date, count }))
+        .sort((a, b) => a.date.localeCompare(b.date))
+
+      // Calculate daily average
+      const totalDays = timeSeriesData.length
+      const dailyAvg = totalDays > 0 ? totalPV / totalDays : 0
+
+      // Calculate weekly trend (last 7 days vs previous 7 days)
+      const last7Days = timeSeriesData.slice(-7)
+      const prev7Days = timeSeriesData.slice(-14, -7)
+      const last7Total = last7Days.reduce((sum, d) => sum + d.count, 0)
+      const prev7Total = prev7Days.reduce((sum, d) => sum + d.count, 0)
+      const weeklyTrend =
+        prev7Total > 0 ? ((last7Total - prev7Total) / prev7Total) * 100 : 0
+
+      return {
+        accountName,
+        totalPV,
+        dailyAvg,
+        weeklyTrend,
+        timeSeriesData,
+      }
+    })
+
+    return comparisonResults
   }
 }

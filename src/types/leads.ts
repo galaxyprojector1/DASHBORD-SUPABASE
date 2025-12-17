@@ -23,19 +23,7 @@ export interface AccountStats {
   name: string
   count: number
   percentage: number
-  activities: {
-    PV: number
-    PAC: number
-    ITE: number
-  }
-}
-
-// Statistics by activity type
-export interface ActivityStats {
-  name: string
-  count: number
-  percentage: number
-  color: string
+  pvCount: number
 }
 
 // Time series data point
@@ -58,25 +46,27 @@ export interface HeatmapData {
 export interface LeadStats {
   total: number
   byAccount: AccountStats[]
-  byActivity: ActivityStats[]
   byDate: DateStats[]
   topAccount: {
     name: string
-    percentage: number
-  }
-  topActivity: {
-    name: string
+    count: number
     percentage: number
   }
   activeAccounts: number
+  dailyAverage: number
+  totalDays: number
+  bestDay: {
+    date: string
+    count: number
+  }
+  weeklyTrend: number
 }
 
 // Filter state
 export interface LeadsFilters {
   dateFrom: string | null // YYYY-MM-DD
   dateTo: string | null // YYYY-MM-DD
-  compte: string | null // "Tous" or specific account
-  activité: string | null // "Toutes" or PV/PAC/ITE
+  comptes: string[] // Array of selected accounts
   search: string // Search in name/email
 }
 
@@ -96,3 +86,12 @@ export const ACCOUNT_COLORS: string[] = [
   "#10b981", // emerald-500
   "#06b6d4", // cyan-500
 ]
+
+// Account comparison data
+export interface AccountComparisonData {
+  accountName: string
+  totalPV: number
+  dailyAvg: number
+  weeklyTrend: number
+  timeSeriesData: DateStats[]
+}

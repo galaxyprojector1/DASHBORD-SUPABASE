@@ -7,27 +7,20 @@
 import { useState, useEffect } from "react"
 import { LeadsFilters } from "@/types/leads"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { Separator } from "@/components/ui/separator"
 import { Filter, RotateCcw } from "lucide-react"
+import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns"
 
 interface LeadsFiltersProps {
-  accounts: string[]
-  activities: string[]
   onApply: (filters: LeadsFilters) => void
   initialFilters?: LeadsFilters
 }
 
 export function LeadsFiltersComponent({
-  accounts,
-  activities,
   onApply,
   initialFilters,
 }: LeadsFiltersProps) {
@@ -35,8 +28,7 @@ export function LeadsFiltersComponent({
     initialFilters || {
       dateFrom: null,
       dateTo: null,
-      compte: "Tous",
-      activité: "Toutes",
+      comptes: [],
       search: "",
     }
   )
@@ -52,8 +44,7 @@ export function LeadsFiltersComponent({
     const resetFilters: LeadsFilters = {
       dateFrom: null,
       dateTo: null,
-      compte: "Tous",
-      activité: "Toutes",
+      comptes: [],
       search: "",
     }
     setFilters(resetFilters)
@@ -62,6 +53,34 @@ export function LeadsFiltersComponent({
 
   const handleApply = () => {
     onApply(filters)
+  }
+
+  const handlePreset = (preset: string) => {
+    const now = new Date()
+    const formatDate = (d: Date) => format(d, "yyyy-MM-dd")
+
+    let dateFrom = ""
+    let dateTo = formatDate(now)
+
+    switch (preset) {
+      case "7d":
+        dateFrom = formatDate(subDays(now, 7))
+        break
+      case "30d":
+        dateFrom = formatDate(subDays(now, 30))
+        break
+      case "thisMonth":
+        dateFrom = formatDate(startOfMonth(now))
+        dateTo = formatDate(endOfMonth(now))
+        break
+      case "lastMonth":
+        const lastMonth = subMonths(now, 1)
+        dateFrom = formatDate(startOfMonth(lastMonth))
+        dateTo = formatDate(endOfMonth(lastMonth))
+        break
+    }
+
+    setFilters({ ...filters, dateFrom, dateTo })
   }
 
   return (
@@ -75,73 +94,91 @@ export function LeadsFiltersComponent({
           Affinez votre analyse des leads
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Account Filter */}
+      <CardContent className="space-y-6">
+        {/* Account Filter - Toggle Group */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Compte Facebook</label>
-          <Select
-            value={filters.compte || "Tous"}
-            onValueChange={(value) =>
-              setFilters({ ...filters, compte: value === "Tous" ? null : value })
-            }
+          <label className="text-sm font-medium">Comptes (3 actifs)</label>
+          <ToggleGroup
+            type="multiple"
+            value={filters.comptes}
+            onValueChange={(value) => setFilters({ ...filters, comptes: value })}
+            className="justify-start flex-wrap"
           >
-            <SelectTrigger>
-              <SelectValue placeholder="Sélectionner un compte" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Tous">Tous les comptes</SelectItem>
-              {accounts.map((account) => (
-                <SelectItem key={account} value={account}>
-                  {account}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <ToggleGroupItem value="INVF" variant="outline">
+              INVF <Badge variant="secondary" className="ml-2">3429</Badge>
+            </ToggleGroupItem>
+            <ToggleGroupItem value="INVC3" variant="outline">
+              INVC3 <Badge variant="secondary" className="ml-2">1735</Badge>
+            </ToggleGroupItem>
+            <ToggleGroupItem value="INVC4" variant="outline">
+              INVC4 <Badge variant="secondary" className="ml-2">1063</Badge>
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
 
-        {/* Activity Filter */}
+        <Separator />
+
+        {/* Date Presets */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Activité</label>
-          <Select
-            value={filters.activité || "Toutes"}
-            onValueChange={(value) =>
-              setFilters({ ...filters, activité: value === "Toutes" ? null : value })
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Sélectionner une activité" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Toutes">Toutes les activités</SelectItem>
-              {activities.map((activity) => (
-                <SelectItem key={activity} value={activity}>
-                  {activity}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <label className="text-sm font-medium">Période rapide</label>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePreset("7d")}
+            >
+              7 derniers jours
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePreset("30d")}
+            >
+              30 derniers jours
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePreset("thisMonth")}
+            >
+              Ce mois
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePreset("lastMonth")}
+            >
+              Mois dernier
+            </Button>
+          </div>
         </div>
 
-        {/* Date Range */}
+        <Separator />
+
+        {/* Custom Date Range */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Période</label>
-          <div className="space-y-2">
-            <Input
-              type="date"
-              value={filters.dateFrom || ""}
-              onChange={(e) =>
-                setFilters({ ...filters, dateFrom: e.target.value || null })
-              }
-              placeholder="Date de début"
-            />
-            <Input
-              type="date"
-              value={filters.dateTo || ""}
-              onChange={(e) =>
-                setFilters({ ...filters, dateTo: e.target.value || null })
-              }
-              placeholder="Date de fin"
-            />
+          <label className="text-sm font-medium">Dates personnalisées</label>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-xs text-muted-foreground">Du</label>
+              <Input
+                type="date"
+                value={filters.dateFrom || ""}
+                onChange={(e) =>
+                  setFilters({ ...filters, dateFrom: e.target.value || null })
+                }
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Au</label>
+              <Input
+                type="date"
+                value={filters.dateTo || ""}
+                onChange={(e) =>
+                  setFilters({ ...filters, dateTo: e.target.value || null })
+                }
+              />
+            </div>
           </div>
         </div>
 
